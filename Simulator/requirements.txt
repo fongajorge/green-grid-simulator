@@ -1,3 +1,7 @@
-simpy
+numpy
 pandas
 matplotlib
+simpy
+dotenv
+scipy
+pyyaml

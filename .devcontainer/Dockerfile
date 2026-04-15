@@ -36,9 +36,9 @@ RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhisto
 # RUN python -m pip install -r requirements.txt 
 
 # Then the project specific
-COPY .devcontainer/requirements.txt . 
-RUN python -m pip install -r requirements.txt
-RUN sudo rm requirements.txt
+COPY .devcontainer/requirements.txt .
+RUN python -m pip install --no-cache-dir -r requirements.txt \
+    && sudo rm requirements.txt
 
 ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
 

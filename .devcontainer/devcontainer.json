@@ -1,6 +1,6 @@
 {
-  "name": "Python 3.9 Dev Container",
-  "image": "up_com139-image:latest",
+  "name": "Ppython 3.12-slim",
+  "image": "Green Grid Simulator",
   // Tells VS Code how to build the container's image.
   "build": {
     "dockerfile": "Dockerfile",
@@ -10,20 +10,15 @@
   "mounts": [
     "source=projectname-bashhistory,target=/commandhistory,type=volume"
   ],
-
   // Mounts the local project folder into the container at the specified path.
   "workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind",
-
   // Default folder that VS Code will open inside the container.
   "workspaceFolder": "/app",
-
   // Right before the container has been created, we set the permissions of the post-create script to be executable.
   "postCreateCommand": "/bin/bash .devcontainer/post-create.sh",
-  
   "customizations": {
     "vscode": {
       "settings": {
-        
         "python.defaultInterpreterPath": "/usr/local/bin/python",
         "editor.formatOnSave": true,
         "python.languageServer": "Pylance",
