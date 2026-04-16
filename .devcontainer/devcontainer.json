@@ -1,6 +1,5 @@
 {
-  "name": "Ppython 3.12-slim",
-  "image": "Green Grid Simulator",
+  "name": "Python 3.12 Dev Container",
   // Tells VS Code how to build the container's image.
   "build": {
     "dockerfile": "Dockerfile",
@@ -34,5 +33,5 @@
       ]
     }
   },
-  "remoteUser": "com139-user"
+  "remoteUser": "appuser"
 }

@@ -1,13 +1,13 @@
 #The base image for the container 
 FROM python:3.12-slim 
- 
+
 # Keeps Python from generating .pyc files in the container 
 ENV PYTHONDONTWRITEBYTECODE=1 
- 
+
 # Turns off buffering for easier container logging 
 ENV PYTHONUNBUFFERED=1 
 
-ARG USERNAME=com139-user
+ARG USERNAME=appuser
 ARG USER_UID=1001
 ARG USER_GID=$USER_UID
 
@@ -29,19 +29,18 @@ RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhisto
     && touch /commandhistory/.bash_history \
     && chown -R $USERNAME /commandhistory \
     && echo "$SNIPPET" >> "/home/$USERNAME/.bashrc"
-    
+
 # Copy python requirements to the docker container and install
 # First the prerequisites for AIST++
 # COPY .devcontainer/requirements.txt . 
 # RUN python -m pip install -r requirements.txt 
 
 # Then the project specific
-COPY .devcontainer/requirements.txt .
+COPY requirements.txt .
 RUN python -m pip install --no-cache-dir -r requirements.txt \
     && sudo rm requirements.txt
-
 ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
 
-# [Optional] Set the default user. Omit if you want to keep the default as root.
+# [Optional]    Set the default user.
+#               Omit if you want to keep the default as root.
 USER $USERNAME
- 
