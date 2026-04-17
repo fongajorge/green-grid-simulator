@@ -1,5 +1,4 @@
 // 1. Create a Global and invisible Tooltip that we will share among all charts
-// Modificado para usar variables de Bootstrap y adaptarse al tema oscuro/claro
 const tooltip = d3.select("body").append("div")
     .attr("class", "d3-tooltip")
     .style("position", "absolute")
@@ -14,29 +13,44 @@ const tooltip = d3.select("body").append("div")
     .style("opacity", 0)
     .style("z-index", "9999");
 
+let globalData = null;
+
 // 2. Load the Data
 d3.json("data/dashboard_data.json").then((data) => {
-
-    // --- KPIs ---
-    if (d3.select("#kpi-savings").node()) {
-        d3.select("#kpi-savings").text(`$${data.summary.estimated_savings_dollars.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
-        d3.select("#kpi-solar").text(`${Math.round(data.summary.total_solar).toLocaleString()} kWh`);
-        d3.select("#kpi-peak").text(`${data.summary.peak_load_hour}:00`);
-    }
-
-    // --- CHART RENDERING ---
-    renderDoubleBar("#chart1", data.by_house_type, "house_type", "House Type");
-    renderDoubleBar("#chart2", data.by_wealth, "wealth_level", "Wealth Level");
-    renderDonut("#chart3", data.summary);
-    renderDuckCurve("#chart4", data.duck_curve, data.summary);
-    renderBatteryArea("#chart5", data.duck_curve);
-    renderBubbleChart("#chart6", data.by_house);
-    renderStackedChart("#chart7", data.by_wealth);
-
+    globalData = data;
+    renderAll(); // Primera renderización
 }).catch((error) => {
     console.error("Error loading JSON. Make sure the local server is running.", error);
 });
 
+
+function renderAll() {
+    if (!globalData) return;
+
+    // --- KPIs ---
+    if (d3.select("#kpi-savings").node()) {
+        d3.select("#kpi-savings").text(`$${globalData.summary.estimated_savings_dollars.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+        d3.select("#kpi-solar").text(`${Math.round(globalData.summary.total_solar).toLocaleString()} kWh`);
+        d3.select("#kpi-peak").text(`${globalData.summary.peak_load_hour}:00`);
+    }
+
+    // --- CHART RENDERING ---
+    renderDoubleBar("#chart1", globalData.by_house_type, "house_type", "House Type");
+    renderDoubleBar("#chart2", globalData.by_wealth, "wealth_level", "Wealth Level");
+    renderDonut("#chart3", globalData.summary);
+    renderDuckCurve("#chart4", globalData.duck_curve, globalData.summary);
+    renderBatteryArea("#chart5", globalData.duck_curve);
+    renderBubbleChart("#chart6", globalData.by_house);
+    renderStackedChart("#chart7", globalData.by_wealth);
+}
+
+let resizeTimer;
+window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        renderAll();
+    }, 250);
+});
 
 /* =======================================================================
  * FUNCTION 1: DOUBLE BAR CHART (PRODUCTION VS CONSUMPTION)
