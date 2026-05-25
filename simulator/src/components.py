@@ -1,5 +1,11 @@
 import random
 import math
+import numpy as np
+import pickle
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 class Battery:
     """
@@ -15,7 +21,7 @@ class Battery:
 
         Args:
             config_data (dict): Dictionary containing battery specifications 
-                                from simulation_config.json.
+                                from simulation_config.yaml.
         """
         # Physical Attributes (Constants)
         # Default: 13.5 kWh (Tesla Powerwall standard)
@@ -115,52 +121,89 @@ class SolarPanel:
     """
     Represents the 'Solar panels' from the diagram.
     
-    Converts solar irradiance into DC power using a sinusoidal model 
-    adjusted for time of day and cloud coverage.
+    Converts solar irradiance into DC power using our Predictive Digital Twin
+    (Machine Learning Linear Regression) adjusted for weather.
     """
+
+    # Class-level variables to ensure we only load the brain ONCE
+    # instead of loading it 100 times for a neighborhood of 100 houses.
+    brain_loaded = False
+    ml_model = None
+    scaler = None
 
     def __init__(self, config_data):
         """
         Initializes the solar array.
 
         Args:
-            config_data (dict): The 'solar' section from simulation_config.json.
+            config_data (dict): The 'solar' section from simulation_config.yaml.
         """
         # Peak generation capacity in kW (e.g., 5.0 kW)
         self.peak_power_kw = config_data.get('panel_peak_kw', 5.0)
 
-    def get_generation(self, time_of_day_hour, cloud_coverage_pct):
+        # ----------------------------------------------------
+        # THE HEART TRANSPLANT: Wake up the AI Brain
+        # ----------------------------------------------------
+        if not SolarPanel.brain_loaded:
+            try:
+                # Resolve the path dynamically
+                current_dir = os.path.dirname(os.path.abspath(__file__))
+                # Check inside src/
+                pkl_path = os.path.join(current_dir, 'trained_brain.pkl')
+                
+                # Check root folder just in case
+                if not os.path.exists(pkl_path):
+                    pkl_path = os.path.join(current_dir, '..', 'trained_brain.pkl')
+
+                with open(pkl_path, 'rb') as f:
+                    brain = pickle.load(f)
+                    SolarPanel.ml_model = brain['model']
+                    SolarPanel.scaler = brain['scaler']
+                
+                SolarPanel.brain_loaded = True
+                print(">>> ML Brain Successfully Transplanted into Solar Panels! <<<")
+            except Exception as e:
+                print(f"CRITICAL ERROR: Could not load the ML Brain! {e}")
+                raise
+
+    def get_generation(self, temp_c, humidity, irradiance):
         """
-        Calculates solar power output for a specific time and weather condition.
+        Calculates solar power output using the ML model.
         
         Args:
-            time_of_day_hour (float): Current hour (0.0 to 23.99).
-            cloud_coverage_pct (float): 0.0 (Clear) to 1.0 (Overcast)
+            temp_c (float): Temperature in Celsius.
+            humidity (float): Relative humidity percentage.
+            irradiance (float): Solar irradiance (Wm2).
             
         Returns:
             float: Generated power in kW.
         """
-        # Solar generation window: roughly 6:00 AM to 6:00 PM
-        sunrise_hour = 6
-        sunset_hour = 18
-
-        # 1. Check if it's night time
-        if time_of_day_hour < sunrise_hour or time_of_day_hour > sunset_hour:
+        # 1. Night time physical constraint 
+        # Regression lines can sometimes predict tiny numbers at night due to noise.
+        # If there is no irradiance (sunlight), generation is zero.
+        if irradiance <= 1.0:
             return 0.0
 
-        # 2. Calculate Sun Angle (0 to Pi radians)
-        # We map the 12 hours of daylight to Pi radians (180 degrees)
-        daylight_duration = sunset_hour - sunrise_hour
-        sun_angle = (time_of_day_hour - sunrise_hour) * (math.pi / daylight_duration)
+        # 2. Format inputs exactly as the model was trained
+        X_new = np.array([[temp_c, humidity, irradiance]])
+        
+        # 3. Scale the features using our CustomScaler
+        X_scaled = SolarPanel.scaler.transform(X_new)
+        
+        # 4. PREDICT!
+        predicted_kw = SolarPanel.ml_model.predict(X_scaled)[0]
+        
+        # 5. Scale down to the house size
+        # The ML model learned from a 5,114 kW commercial farm.
+        # We must shrink the prediction proportionally to fit this house's rooftop (e.g., 5.0 kW)
+        farm_peak_kw = 5114.16 
+        ratio = self.peak_power_kw / farm_peak_kw
+        
+        actual_generation = predicted_kw * ratio
 
-        # 3. Calculate Base Generation using Sine Wave
-        base_generation = self.peak_power_kw * math.sin(sun_angle)
-
-        # 4. Apply Cloud Factor
-        # cloud coverage of 0.3 would reduce generation by 30%
-        actual_generation = base_generation * (1 - cloud_coverage_pct)
-
+        # Return max to ensure we never output negative electricity
         return max(0.0, actual_generation)
+
 
 class Inverter:
     """
@@ -175,7 +218,7 @@ class Inverter:
         Initializes the inverter parameters.
 
         Args:
-            config_data (dict): The 'solar' section from simulation_config.json.
+            config_data (dict): The 'solar' section from simulation_config.yaml.
         """
         # Maximum power output (Clipping limit) 
         self.max_output_kw = config_data.get('inverter_max_kw', 4.0)

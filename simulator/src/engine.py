@@ -28,7 +28,11 @@ class SimulationEngine:
         
         # 3. Shared state & Data Logging
         # This allows all houses to see the exact same weather at any given minute
-        self.weather_state = {'cloud_cover': 0.0}
+        self.weather_state = {
+            'Temperature_C': 20.0,
+            'Humidity_percent': 50.0,
+            'Irradiance_Wm2': 0.0
+        }
         self.results = []
 
     def _global_clock(self):
@@ -37,7 +41,10 @@ class SimulationEngine:
         Updates the weather just before the houses react to it.
         """
         while True:
-            self.weather_state['cloud_cover'] = self.weather.get_cloud_coverage()
+            conditions = self.weather.get_weather_conditions()
+            self.weather_state['Temperature_C'] = conditions['Temperature_C']
+            self.weather_state['Humidity_percent'] = conditions['Humidity_percent']
+            self.weather_state['Irradiance_Wm2'] = conditions['Irradiance_Wm2']
             yield self.env.timeout(self.step_minutes)
 
     def run(self):
@@ -63,3 +70,4 @@ class SimulationEngine:
         
         # 4. Return results as a DataFrame
         return pd.DataFrame(self.results)
+    

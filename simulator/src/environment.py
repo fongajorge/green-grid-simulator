@@ -1,11 +1,12 @@
 import random
+import pandas as pd
+import os
 
 class Weather:
     """
-    Simulates environmental conditions, specifically cloud coverage.
-    
-    Uses weighted probabilities based on the current season to determine
-    daily cloud patterns.
+    Simulates environmental conditions.
+    Now acts as a Data-Driven Predictive Digital Twin component, 
+    pulling real weather data from the Cleaned dataset.
     """
 
     def __init__(self, config_data):
@@ -13,42 +14,44 @@ class Weather:
         Initializes the weather model.
 
         Args:
-            config_data (dict): The 'simulation' section from simulation_config.json.
+            config_data (dict): The 'simulation' section from simulation_config.yaml.
         """
         self.season = config_data.get('season', 'Summer')
+        
+        # Load the real dataset!
+        try:
+            # We look for the file in the root directory (one level up from src)
+            # or in the current execution directory.
+            csv_path = 'Cleaned_Solar_Weather_Dataset.csv'
+            if not os.path.exists(csv_path):
+                # Fallback path if running from inside src
+                csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'Cleaned_Solar_Weather_Dataset.csv')
+                
+            self.data = pd.read_csv(csv_path)
+            self.max_steps = len(self.data)
+        except Exception as e:
+            raise RuntimeError(f"Could not load Cleaned_Solar_Weather_Dataset.csv. Please ensure it exists.") from e
+        
+        self.current_step_index = 0
 
-        # Probability weights for cloud coverage levels:
-        # (Clear, Partly Cloudy, Mostly Cloudy, Overcast)
-        self.season_weights = {
-            'Spring': [0.1, 0.3, 0.4, 0.2],
-            'Summer': [0.05, 0.15, 0.3, 0.5],
-            'Fall':   [0.2, 0.4, 0.3, 0.1],
-            'Winter': [0.3, 0.4, 0.2, 0.1]
-        }
-
-    def get_cloud_coverage(self):
+    def get_weather_conditions(self):
         """
-        Generates a random cloud coverage factor for the day.
+        Pulls the real weather conditions for the current time step.
         
         Returns:
-            float: A value between 0.0 (Clear) and 1.0 (Overcast).
+            dict: Current Temperature_C, Humidity_percent, Irradiance_Wm2
         """
-        # 1. Get weights for the current season
-        weights = self.season_weights.get(self.season, [0.25, 0.25, 0.25, 0.25])
+        # Get row and loop around if simulation runs longer than dataset
+        row = self.data.iloc[self.current_step_index % self.max_steps]
         
-        # 2. Select a weather category based on weights
-        # Categories: 0=Clear, 1=Partly, 2=Mostly, 3=Overcast
-        category = random.choices([0, 1, 2, 3], weights=weights, k=1)[0]
+        conditions = {
+            'Temperature_C': float(row['Temperature_C']),
+            'Humidity_percent': float(row['Humidity_percent']),
+            'Irradiance_Wm2': float(row['Irradiance_Wm2'])
+        }
         
-        # 3. Generate specific coverage percentage based on category ranges
-        if category == 0:   # Clear (0.0 - 0.2)
-            return random.uniform(0.0, 0.2)
-        elif category == 1: # Partly Cloudy (0.2 - 0.6)
-            return random.uniform(0.2, 0.6)
-        elif category == 2: # Mostly Cloudy (0.6 - 0.8)
-            return random.uniform(0.6, 0.8)
-        else:               # Overcast (0.8 - 1.0) - PDF says 0.8-0.9, but 1.0 is safer cap
-            return random.uniform(0.8, 1.0)
+        self.current_step_index += 1
+        return conditions
 
 
 class HomeLoad:
@@ -64,7 +67,7 @@ class HomeLoad:
         Initializes the load profile.
 
         Args:
-            config_data (dict): The 'load' section from simulation_config.json.
+            config_data (dict): The 'load' section from simulation_config.yaml.
         """
         self.base_load_kw = config_data.get('base_load_kw', 0.5)
         self.peak_load_kw = config_data.get('peak_load_kw', 3.0)
@@ -108,7 +111,7 @@ class UtilityGrid:
         Initializes grid parameters.
 
         Args:
-            config_data (dict): The 'grid' section from simulation_config.json.
+            config_data (dict): The 'grid' section from simulation_config.yaml.
         """
         self.export_limit_kw = config_data.get('export_limit_kw', 20.0)
         self.cost_import = config_data.get('cost_import_cents', 0.75)

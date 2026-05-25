@@ -28,10 +28,12 @@ class House:
             day_number = int(current_time_min / (60 * 24))
 
             # 2. Get global weather for this timestep
-            cloud_cover = weather_state.get('cloud_cover', 0.0)
+            temp_c = weather_state.get('Temperature_C', 20.0)
+            humidity = weather_state.get('Humidity_percent', 50.0)
+            irradiance = weather_state.get('Irradiance_Wm2', 0.0)
 
-            # 3. Calculate Physics
-            dc_solar_kw = self.solar_panel.get_generation(current_hour, cloud_cover)
+            # 3. Calculate Physics using the ML Prediction
+            dc_solar_kw = self.solar_panel.get_generation(temp_c, humidity, irradiance)
             ac_solar_kw = self.inverter.clip_power(dc_solar_kw)
             load_kw = self.home_load.get_current_load(current_hour)
 
