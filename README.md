@@ -31,8 +31,13 @@ GreenGridSim
 │         ├── ml_model.py       # Custom Linear Regression algorithm and Scaler (No external ML libs)
 │         ├── train_model.py    # Pipeline to fit the model and export the .pkl brain
 │         └── evaluate_model.py # Generates performance metrics (MSE, MAE, R-squared) and visual plots
+├── ml/                          # Machine Learning Pipeline
+│    ├── clean_dataset.csv      # Cleaned historical weather/solar data
+│    ├── evaluate_model.py      # Calculates metrics and generates plots
+│    ├── ml_model.py            # Custom Linear Regression & Scaler math
+│    ├── train_model.py         # Trains the model and exports the .pkl
+│    └── trained_brain.pkl      # Serialized weights, bias, and scaler
 └── README.md
-
 ```
 
 ---
@@ -213,7 +218,3 @@ To view the dashboard, you can access the hosted webpage [Green Grid Simulation 
 Results are generated in CSV format in the outputs/ folder. For a visual and interactive analysis, open the docs/index.html file using a local web server to view the results on the Results Dashboard by following the instructions above.
 
 ---
-
-```
-
-```
