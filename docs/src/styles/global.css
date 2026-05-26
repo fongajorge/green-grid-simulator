@@ -1,0 +1,113 @@
+body {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.dashboard-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--bs-heading-color);
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.dashboard-title span {
+    display: block;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--bs-secondary-color);
+    margin-top: 5px;
+}
+
+.dashboard-title-decor {
+    height: 4px;
+    width: 60px;
+    background: linear-gradient(to right, #5B8FF9, #1E3A8A);
+    border-radius: 2px;
+    margin: 12px auto 32px;
+}
+
+.row.g-4 {
+    align-items: stretch;
+}
+
+.card {
+    height: 100%;
+    background-color: var(--bs-card-bg);
+    color: var(--bs-card-color);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    border: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.card-body {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+    margin-top: 10px;
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+
+.card-body>div[id^="chart"] {
+    flex: 1;
+    position: relative;
+    min-height: 280px;
+}
+
+.chart-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.chart-container {
+    width: 100%;
+    overflow: hidden;
+}
+
+.axis path,
+.axis line {
+    stroke: var(--bs-border-color);
+}
+
+.axis text {
+    fill: var(--bs-secondary-color);
+    font-size: 11px;
+}
+
+.grid line {
+    stroke: var(--bs-border-color-translucent);
+}
+
+.d3-tooltip {
+    position: absolute;
+    background: var(--bs-body-bg);
+    padding: 10px 14px;
+    border-radius: 10px;
+    pointer-events: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    font-size: 13px;
+    color: var(--bs-body-color);
+    border: 1px solid var(--bs-border-color);
+    transition: all 0.15s ease;
+}
+
+@media (max-width: 768px) {
+    .card {
+        padding: 15px;
+    }
+}

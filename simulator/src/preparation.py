@@ -83,7 +83,7 @@ def export_to_dashboard(dashboard_data):
     """Saves the JSON directly to the GitHub Pages web folder."""
     # Go up two levels from src/ and enter docs/
     base_dir = Path(__file__).resolve().parent.parent.parent  
-    data_dir = base_dir / 'docs' / 'data'
+    data_dir = base_dir / 'docs' / 'public' / 'data'
     # Create the folder if it doesn't exist
     data_dir.mkdir(exist_ok=True)
     
