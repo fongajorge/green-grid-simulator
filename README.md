@@ -14,25 +14,25 @@ The project is organized into modular components to separate configuration, phys
 GreenGridSim
 ├── .devcontainer/               # Development container configuration (Docker)
 ├── config/
-│   └── simulation_config.yaml  # Simulation parameters (Battery, Solar, Strategy)
+│   └── simulation_config.yaml   # Simulation parameters (Battery, Solar, Strategy)
 ├── docs/                        # Web dashboard (GitHub Pages) and reports
 ├── ml/                          # Machine Learning Training Sandbox
-│    ├── outputs/               # Auto-generated evaluation charts (.png)
-│    ├── evaluate_model.py      # Calculates metrics (MSE, MAE, R2) and charts
-│    └── train_model.py         # Grid search script to fit and export the .pkl
+│    ├── outputs/                # Auto-generated evaluation charts (.png)
+│    ├── evaluate_model.py       # Calculates metrics (MSE, MAE, R2) and charts
+│    └── train_model.py          # Grid search script to fit and export the .pkl
 ├── simulator/                   # Production Simulation Environment
-│    ├── outputs/               # Generated CSV results from the simulation
-│    ├── src/                   # Source code package
-│    │    ├── components.py     # Hardware models (Battery, Inverter, Panels)
-│    │    ├── engine.py         # SimPy orchestration logic
-│    │    ├── environment.py    # Weather and Load stochastic models
-│    │    ├── neighborhood.py   # Neighborhood and House entity logic
-│    │    ├── preparation.py    # Data processing for the dashboard
-│    │    ├── strategy.py       # Energy Management Strategies (EMS)    
-│    │    ├── ml_model.py       # Custom Linear Regression algorithm and Scaler
-│    │    └── trained_brain.pkl # The active serialized ML model
-│    ├── clean_dataset.csv      # Active dataset used by the environment
-│    └── main.py                # Entry point to run the standalone simulation
+│    ├── outputs/                # Generated CSV results from the simulation
+│    ├── src/                    # Source code package
+│    │    ├── components.py      # Hardware models (Battery, Inverter, Panels)
+│    │    ├── engine.py          # SimPy orchestration logic
+│    │    ├── environment.py     # Weather and Load stochastic models
+│    │    ├── neighborhood.py    # Neighborhood and House entity logic
+│    │    ├── preparation.py     # Data processing for the dashboard
+│    │    ├── strategy.py        # Energy Management Strategies (EMS)    
+│    │    ├── ml_model.py        # Custom Linear Regression algorithm and Scaler
+│    │    └── trained_brain.pkl  # The active serialized ML model
+│    ├── clean_dataset.csv       # Active dataset used by the environment
+│    └── main.py                 # Entry point to run the standalone simulation
 ├── run_pipeline.py              # Master script to automate ML training -> Sim -> Dashboard
 └── README.md
 
