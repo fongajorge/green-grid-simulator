@@ -72,9 +72,19 @@ def run_evaluation():
     print(f"R^2: {calculate_r2(y, y_pred_B):.4f}")
 
     # ---------------------------------------------------------
-    # 4. DATA VISUALIZATION (PNG Generation)
+    # 4. DATA VISUALIZATION (PNG Generation with Timestamps)
     # ---------------------------------------------------------
+    from datetime import datetime
+    
     print("\nGenerating charts for the report...")
+    
+    # Generate the current timestamp string (e.g., "2026-05-25_21-47")
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+    
+    # Dynamically create the ml/outputs/ folder if it doesn't exist
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    outputs_dir = os.path.join(current_dir, 'outputs')
+    os.makedirs(outputs_dir, exist_ok=True)
     
     # Chart 1: Raw Data
     plt.figure(figsize=(10, 6))
@@ -83,7 +93,11 @@ def run_evaluation():
     plt.xlabel('Irradiance (W/m^2)')
     plt.ylabel('Solar Generation (kW)')
     plt.grid(True)
-    plt.savefig('raw_data_plot.png')
+    
+    # Save to the new outputs folder
+    filename_1 = f'raw_data_plot_{timestamp}.png'
+    filepath_1 = os.path.join(outputs_dir, filename_1)
+    plt.savefig(filepath_1)
     plt.close()
 
     # Chart 2: Reality vs Model A Prediction
@@ -95,10 +109,14 @@ def run_evaluation():
     plt.ylabel('Solar Generation (kW)')
     plt.legend()
     plt.grid(True)
-    plt.savefig('prediction_vs_reality.png')
+    
+    # Save to the new outputs folder
+    filename_2 = f'prediction_vs_reality_{timestamp}.png'
+    filepath_2 = os.path.join(outputs_dir, filename_2)
+    plt.savefig(filepath_2)
     plt.close()
 
-    print("Success! Charts saved as 'raw_data_plot.png' and 'prediction_vs_reality.png'.")
+    print(f"Success! Charts saved to the 'ml/outputs/' folder as '{filename_1}' and '{filename_2}'.")
 
 if __name__ == "__main__":
     run_evaluation()
