@@ -1,4 +1,4 @@
-# Green Grid Sim
+# Green Grid Simulator
 
 **Green Grid Sim** is a Python-based discrete-event simulation tool designed to model and analyze residential renewable energy microgrids. It accurately simulates the interaction between **Solar PV arrays**, **Battery Energy Storage Systems (BESS)**, household loads, and the utility grid.
 
